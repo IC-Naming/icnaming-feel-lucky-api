@@ -23,6 +23,7 @@ export class DomainNameService {
       },
     });
   }
+
   //Get DomainNames by domain string length and not include domain list
   async getDomainNamesByLengthAndDomainList(
     length: number,
@@ -48,6 +49,7 @@ export class DomainNameService {
       },
     });
   }
+
   //random get DomainNames take 5 by length
   async getRandomDomainNamesByLength(length: number): Promise<DomainName[]> {
     return await this.prisma.$queryRaw<
@@ -56,6 +58,7 @@ export class DomainNameService {
       length,
     )} ORDER BY random() LIMIT 5`;
   }
+
   //random get DomainNames take 5 by length
   async getRandomDomainNamesByLengthAndExcludeDomain(
     input: QueryDomainNameByLengthDto,
@@ -126,5 +129,49 @@ export class DomainNameService {
         domainLength: Number(length),
       },
     });
+  }
+
+  async getRandomDomainNamesGroupByLength(
+    length: number,
+    groupSize: number,
+  ): Promise<number[][]> {
+    const count = await this.getDomainNamesCountByLength(length);
+    const groupCount = count / groupSize;
+    const firstId = await this.prisma.domainName.findFirst({
+      where: {
+        domainLength: Number(length),
+      },
+      select: {
+        id: true,
+      },
+    });
+    const lastId = await this.prisma.domainName.findFirst({
+      where: {
+        domainLength: Number(length),
+      },
+      orderBy: {
+        id: 'desc',
+      },
+      select: {
+        id: true,
+      },
+    });
+    //Randomly generated id combinations,Combinations without duplicates, groupCount is the number of groups, groupSize is the number of ids in each group
+    const randomIds: number[][] = [];
+    for (let i = 0; i < groupCount; i++) {
+      const randomIdsGroup: number[] = [];
+      for (let j = 0; j < groupSize; j++) {
+        const randomId = Math.floor(
+          Math.random() * (lastId.id - firstId.id + 1) + firstId.id,
+        );
+        if (randomIdsGroup.find((id) => id === randomId)) {
+          j--;
+        } else {
+          randomIdsGroup.push(randomId);
+        }
+      }
+      randomIds.push(randomIdsGroup);
+    }
+    return randomIds;
   }
 }
