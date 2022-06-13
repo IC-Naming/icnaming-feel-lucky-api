@@ -3,10 +3,11 @@ import { PrismaService } from './prisma.service';
 import { DomainName, Prisma } from '@prisma/client';
 import { LoggerService } from '@nestjs/common';
 import { QueryDomainNameByLengthDto } from './domainName.dto';
+import { PrismaService as PrismaService2 } from './prisma2.service';
 
 @Injectable()
 export class DomainNameService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private prisma2: PrismaService2) {}
 
   //Get DomainNames take(10)
   async getDomainNames(): Promise<DomainName[]> {
@@ -131,47 +132,36 @@ export class DomainNameService {
     });
   }
 
-  async getRandomDomainNamesGroupByLength(
+  async getDomainNamesPageByLength(
     length: number,
-    groupSize: number,
-  ): Promise<number[][]> {
-    const count = await this.getDomainNamesCountByLength(length);
-    const groupCount = count / groupSize;
-    const firstId = await this.prisma.domainName.findFirst({
+    page: number,
+    pageSize: number,
+  ): Promise<string[]> {
+    const excludeDomainNames = (
+      await this.prisma2.blackDomainName.findMany()
+    ).map((item) => item.domain);
+    const domainNames = await this.prisma.domainName.findMany({
       where: {
-        domainLength: Number(length),
-      },
-      select: {
-        id: true,
-      },
-    });
-    const lastId = await this.prisma.domainName.findFirst({
-      where: {
-        domainLength: Number(length),
+        OR: [
+          {
+            domainLength: Number(length),
+          },
+        ],
+        NOT: {
+          domain: {
+            in: excludeDomainNames,
+          },
+        },
       },
       orderBy: {
-        id: 'desc',
+        id: 'asc',
       },
       select: {
-        id: true,
+        domain: true,
       },
+      skip: page * pageSize,
+      take: pageSize,
     });
-    //Randomly generated id combinations,Combinations without duplicates, groupCount is the number of groups, groupSize is the number of ids in each group
-    const randomIds: number[][] = [];
-    for (let i = 0; i < groupCount; i++) {
-      const randomIdsGroup: number[] = [];
-      for (let j = 0; j < groupSize; j++) {
-        const randomId = Math.floor(
-          Math.random() * (lastId.id - firstId.id + 1) + firstId.id,
-        );
-        if (randomIdsGroup.find((id) => id === randomId)) {
-          j--;
-        } else {
-          randomIdsGroup.push(randomId);
-        }
-      }
-      randomIds.push(randomIdsGroup);
-    }
-    return randomIds;
+    return domainNames.map((item) => item.domain);
   }
 }

@@ -5,6 +5,7 @@ import { DomainNameService } from './domainName.service';
 import { PrismaService } from './prisma.service';
 import { TasksService } from './task.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { PrismaService as PrismaService2 } from './prisma2.service';
 
 @Module({
   imports: [ScheduleModule.forRoot()],
@@ -13,6 +14,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AppService,
     DomainNameService,
     PrismaService,
+    PrismaService2,
     TasksService,
     Logger,
   ],

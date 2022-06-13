@@ -1,0 +1,22 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@internal/prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("BLACKLIST_DATABASE_URL")
+}
+
+
+
+model BlackDomainName {
+  id Int @default(autoincrement()) @id
+  domain String @unique
+  domainLength Int
+
+  @@index([domainLength])
+}
