@@ -14,19 +14,20 @@ export class TasksService {
   async handleCronJob() {
     this.logger.debug('job start');
     await this.tryCreateFolder(process.env.JSON_FOLDER);
+    const indexInfos: IndexInfo[] = [];
     for (let i = 1; i < 64; i++) {
       const domainCount =
         await this.domainNameService.getDomainNamesCountByLength(i);
       const pageSize = 1000;
       const pageCount = Math.ceil(domainCount / pageSize);
       const indexInfo: IndexInfo = {
+        domainLength: i,
         domainCount,
         pageSize,
         pageCount,
       };
-      await this.trySaveIndexInfoAsJsonFile(indexInfo, `${i}`, `index`);
-
-      for (let j = 1; j <= pageCount; j++) {
+      indexInfos.push(indexInfo);
+      for (let j = 0; j <= pageCount; j++) {
         const domainNames =
           await this.domainNameService.getDomainNamesPageByLength(
             i,
@@ -36,6 +37,7 @@ export class TasksService {
         await this.trySaveAsJsonFile(domainNames, `${i}`, `${j}`);
       }
     }
+    await this.trySaveIndexInfosAsJsonFile(indexInfos, `index`);
   }
 
   //try create folder process.env.DATABASE_HOST
@@ -59,14 +61,9 @@ export class TasksService {
     }
   }
 
-  async trySaveIndexInfoAsJsonFile(
-    content: IndexInfo,
-    folderName: string,
-    fileName: string,
-  ) {
+  async trySaveIndexInfosAsJsonFile(content: IndexInfo[], fileName: string) {
     const folderRoot = process.env.JSON_FOLDER;
-    const filePath = `${folderRoot}/${folderName}/${fileName}.json`;
-    this.tryCreateFolder(`${folderRoot}/${folderName}`);
+    const filePath = `${folderRoot}/${fileName}.json`;
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, JSON.stringify(content));
     }
@@ -74,6 +71,7 @@ export class TasksService {
 }
 
 interface IndexInfo {
+  domainLength: number;
   domainCount: number;
   pageSize: number;
   pageCount: number;
