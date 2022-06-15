@@ -25,6 +25,7 @@ export class AppController {
       body.domainList,
     );
   }
+
   //getDomainNamesByLength
   @Get('getDomainNamesByLength?')
   async getDomainNamesByLength(
@@ -39,6 +40,7 @@ export class AppController {
   ): Promise<number> {
     return this.domainNameService.getDomainNamesCountByLength(length);
   }
+
   @Get('getRandomDomainNamesByLength?')
   async getRandomDomainNamesByLength(
     @Query('length') length: number,
@@ -53,5 +55,12 @@ export class AppController {
     return this.domainNameService.getRandomDomainNamesByLengthAndExcludeDomain(
       input,
     );
+  }
+
+  @Post('addBlackDomainName')
+  async addBlackDomainName(
+    @Body() input: { domain: string },
+  ): Promise<DomainName> {
+    return this.domainNameService.addBlackDomainName(input.domain);
   }
 }

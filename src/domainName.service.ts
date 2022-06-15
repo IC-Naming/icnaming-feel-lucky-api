@@ -164,4 +164,13 @@ export class DomainNameService {
     });
     return domainNames.map((item) => item.domain);
   }
+
+  async addBlackDomainName(domain: string): Promise<DomainName> {
+    return await this.prisma2.blackDomainName.create({
+      data: {
+        domain: domain,
+        domainLength: domain.length,
+      },
+    });
+  }
 }
