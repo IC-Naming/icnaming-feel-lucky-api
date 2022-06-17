@@ -8,5 +8,5 @@ tasks:
     command: |
       npm run start
       git lfs install
-
+      git lfs pull -I ./prisma/dev.db
 
