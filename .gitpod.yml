@@ -11,5 +11,5 @@ tasks:
       git lfs pull -I /prisma2/blacklist.db
       npm run schema:generate
       npm run schema2:generate
-      npm run start
+      # npm run start
 
