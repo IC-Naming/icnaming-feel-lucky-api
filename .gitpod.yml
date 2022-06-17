@@ -7,5 +7,6 @@ tasks:
       npm install
     command: |
       npm run start
+      git lfs install
 
 
