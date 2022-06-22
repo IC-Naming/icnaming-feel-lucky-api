@@ -6,5 +6,4 @@ tasks:
   - init: |
       npm install
     command: |
-      ./sh_setup_dev.sh
-
+      # ./sh_setup_dev.sh
