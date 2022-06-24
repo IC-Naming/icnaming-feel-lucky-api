@@ -6,6 +6,7 @@ import { PrismaService } from './prisma.service';
 import { TasksService } from './task.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaService as PrismaService2 } from './prisma2.service';
+import { ShutdownService } from './shutdown.service';
 
 @Module({
   imports: [ScheduleModule.forRoot()],
@@ -17,6 +18,7 @@ import { PrismaService as PrismaService2 } from './prisma2.service';
     PrismaService2,
     TasksService,
     Logger,
+    ShutdownService,
   ],
 })
 export class AppModule {}
