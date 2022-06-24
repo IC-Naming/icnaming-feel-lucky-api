@@ -2,12 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DomainNameService } from './domainName.service';
 import * as fs from 'fs';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ShutdownService } from './shutdown.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     private readonly domainNameService: DomainNameService,
     private logger: Logger,
+    private readonly shutdownService: ShutdownService,
   ) {}
 
   @Cron(CronExpression.EVERY_HOUR)
@@ -38,6 +40,9 @@ export class TasksService {
       }
     }
     await this.trySaveIndexInfosAsJsonFile(indexInfos, `index`);
+
+    this.logger.debug('shutdown service');
+    this.shutdownService.shutdown();
   }
 
   //try create folder process.env.DATABASE_HOST

@@ -24,11 +24,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app.listen(3002);
-
-  await tasksService.handleCronJob();
   app.get(ShutdownService).subscribeToShutdown(() => app.close());
 
-  await shutdownService.shutdown();
+  await tasksService.handleCronJob();
 }
 
 bootstrap();
