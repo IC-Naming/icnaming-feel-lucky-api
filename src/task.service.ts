@@ -15,6 +15,7 @@ export class TasksService {
   @Cron(CronExpression.EVERY_HOUR)
   async handleCronJob() {
     this.logger.debug('job start');
+    this.logger.debug(process.env.NODE_ENV);
     await this.tryCreateFolder(process.env.JSON_FOLDER);
     const indexInfos: IndexInfo[] = [];
     for (let i = 1; i < 64; i++) {
@@ -41,8 +42,10 @@ export class TasksService {
     }
     await this.trySaveIndexInfosAsJsonFile(indexInfos, `index`);
 
-    this.logger.debug('shutdown service');
-    this.shutdownService.shutdown();
+    if (process.env.NODE_ENV == 'action') {
+      this.logger.debug('shutdown service');
+      this.shutdownService.shutdown();
+    }
   }
 
   //try create folder process.env.DATABASE_HOST

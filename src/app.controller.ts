@@ -2,7 +2,13 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { DomainNameService } from './domainName.service';
 import { DomainName } from '@prisma/client';
-import { QueryDomainNameByLengthDto } from './domainName.dto';
+import {
+  AddBlackDomainNameDto,
+  AddBlackDomainNameListDto,
+  QueryDomainNameByLengthDto,
+  RemoveBlackDomainNameListDto,
+} from './domainName.dto';
+import { BlackDomainName } from '@internal/prisma/client';
 
 @Controller()
 export class AppController {
@@ -59,15 +65,22 @@ export class AppController {
 
   @Post('addBlackDomainName')
   async addBlackDomainName(
-    @Body() input: { domain: string },
-  ): Promise<DomainName> {
+    @Body() input: AddBlackDomainNameDto,
+  ): Promise<BlackDomainName> {
     return this.domainNameService.addBlackDomainName(input.domain);
   }
 
   @Post('addBlackDomainNames')
   async addBlackDomainNames(
-    @Body() input: { domians: string[] },
-  ): Promise<DomainName[]> {
-    return this.domainNameService.addBlackDomainNames(input.domians);
+    @Body() input: AddBlackDomainNameListDto,
+  ): Promise<BlackDomainName[] | any> {
+    return this.domainNameService.addBlackDomainNames(input.domains);
+  }
+
+  @Post('removeBlackDomainNames')
+  async removeBlackDomainNames(
+    @Body() input: RemoveBlackDomainNameListDto,
+  ): Promise<BlackDomainName[] | any> {
+    return this.domainNameService.removeBlackDomainNames(input.domains);
   }
 }

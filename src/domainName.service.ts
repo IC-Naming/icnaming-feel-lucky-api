@@ -1,14 +1,17 @@
-import { Body, Injectable, Post } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { DomainName, Prisma } from '@prisma/client';
-import { LoggerService } from '@nestjs/common';
+import { DomainName } from '@prisma/client';
 import { QueryDomainNameByLengthDto } from './domainName.dto';
 import { PrismaService as PrismaService2 } from './prisma2.service';
-import { BlackDomainName } from '@internal/prisma/client';
+import { BlackDomainName, Prisma as Prisma2 } from '@internal/prisma/client';
 
 @Injectable()
 export class DomainNameService {
-  constructor(private prisma: PrismaService, private prisma2: PrismaService2) {}
+  constructor(
+    private prisma: PrismaService,
+    private prisma2: PrismaService2,
+    private logger: Logger,
+  ) {}
 
   //Get DomainNames take(10)
   async getDomainNames(): Promise<DomainName[]> {
@@ -175,16 +178,62 @@ export class DomainNameService {
     });
   }
 
-  async addBlackDomainNames(domains: string[]): Promise<BlackDomainName[]> {
+  async addBlackDomainNames(
+    domains: string[],
+  ): Promise<BlackDomainName[] | any> {
     const result = [];
-    for (const domain in domains) {
-      const res = await this.prisma2.blackDomainName.create({
-        data: {
-          domain: domain,
-          domainLength: domain.length,
-        },
-      });
-      result.push(res);
+    for (const i in domains) {
+      try {
+        const res = await this.prisma2.blackDomainName.create({
+          data: {
+            domain: domains[i],
+            domainLength: domains[i].length,
+          },
+        });
+        result.push(res);
+      } catch (e) {
+        if (e instanceof Prisma2.PrismaClientKnownRequestError) {
+          // The .code property can be accessed in a type-safe manner
+          if (e.code === 'P2002') {
+            throw new HttpException(
+              {
+                status: HttpStatus.FORBIDDEN,
+                error: `"${domains[i]}" already exists`,
+              },
+              HttpStatus.FORBIDDEN,
+            );
+          }
+        }
+        throw e;
+      }
+    }
+    return result;
+  }
+
+  async removeBlackDomainNames(domains: string[]): Promise<BlackDomainName[]> {
+    const result = [];
+    for (const i in domains) {
+      try {
+        const res = await this.prisma2.blackDomainName.create({
+          data: {
+            domain: domains[i],
+            domainLength: domains[i].length,
+          },
+        });
+        result.push(res);
+      } catch (e) {
+        if (e instanceof Prisma2.PrismaClientKnownRequestError) {
+          // The .code property can be accessed in a type-safe manner
+          throw new HttpException(
+            {
+              status: HttpStatus.FORBIDDEN,
+              error: `Error deleting "${domains[i]}"`,
+            },
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        throw e;
+      }
     }
     return result;
   }
