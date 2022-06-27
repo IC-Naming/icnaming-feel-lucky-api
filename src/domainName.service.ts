@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable, Post } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { DomainName, Prisma } from '@prisma/client';
 import { LoggerService } from '@nestjs/common';
 import { QueryDomainNameByLengthDto } from './domainName.dto';
 import { PrismaService as PrismaService2 } from './prisma2.service';
+import { BlackDomainName } from '@internal/prisma/client';
 
 @Injectable()
 export class DomainNameService {
@@ -165,12 +166,26 @@ export class DomainNameService {
     return domainNames.map((item) => item.domain);
   }
 
-  async addBlackDomainName(domain: string): Promise<DomainName> {
+  async addBlackDomainName(domain: string): Promise<BlackDomainName> {
     return await this.prisma2.blackDomainName.create({
       data: {
         domain: domain,
         domainLength: domain.length,
       },
     });
+  }
+
+  async addBlackDomainNames(domains: string[]): Promise<BlackDomainName[]> {
+    const result = [];
+    for (const domain in domains) {
+      const res = await this.prisma2.blackDomainName.create({
+        data: {
+          domain: domain,
+          domainLength: domain.length,
+        },
+      });
+      result.push(res);
+    }
+    return result;
   }
 }

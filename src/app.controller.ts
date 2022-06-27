@@ -63,4 +63,11 @@ export class AppController {
   ): Promise<DomainName> {
     return this.domainNameService.addBlackDomainName(input.domain);
   }
+
+  @Post('addBlackDomainNames')
+  async addBlackDomainNames(
+    @Body() input: { domians: string[] },
+  ): Promise<DomainName[]> {
+    return this.domainNameService.addBlackDomainNames(input.domians);
+  }
 }
