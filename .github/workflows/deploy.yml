@@ -11,7 +11,7 @@ jobs:
       #  your build commands
       - run: |
           ./sh_setup_dev.sh
-          npm run start
+          npm run start:action
       - uses: amondnet/vercel-action@v25 #deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
