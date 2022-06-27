@@ -214,10 +214,9 @@ export class DomainNameService {
     const result = [];
     for (const i in domains) {
       try {
-        const res = await this.prisma2.blackDomainName.create({
-          data: {
+        const res = await this.prisma2.blackDomainName.delete({
+          where: {
             domain: domains[i],
-            domainLength: domains[i].length,
           },
         });
         result.push(res);

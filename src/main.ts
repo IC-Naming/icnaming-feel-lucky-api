@@ -25,6 +25,8 @@ async function bootstrap() {
 
   await app.listen(3002);
   app.get(ShutdownService).subscribeToShutdown(() => app.close());
+
+  await tasksService.handleCronJob();
 }
 
 bootstrap();
