@@ -21,7 +21,7 @@ export class TasksService {
     for (let i = 1; i < 64; i++) {
       const domainCount =
         await this.domainNameService.getDomainNamesCountByLength(i);
-      const pageSize = 1000;
+      const pageSize = 5000;
       const pageCount = Math.ceil(domainCount / pageSize);
       const indexInfo: IndexInfo = {
         domainLength: i,
