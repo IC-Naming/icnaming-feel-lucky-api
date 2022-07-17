@@ -12,6 +12,10 @@ jobs:
       - run: |
           ./sh_setup_dev.sh
           npm run start:action
+        env:
+          REGISTERRED_NAME_CONNECTIONSTRING: ${{ secrets.REGISTERRED_NAME_CONNECTIONSTRING }}
+          REGISTERRED_NAME_TABLENAME: ${{ secrets.REGISTERRED_NAME_TABLENAME }}
+          REGISTERRED_NAME_NAMESUBFFIX: ${{ secrets.REGISTERRED_NAME_NAMESUBFFIX }}
       - uses: amondnet/vercel-action@v25 #deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required

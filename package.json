@@ -25,6 +25,7 @@
     "schema:generate": "npx prisma generate --schema ./prisma/schema.prisma"
   },
   "dependencies": {
+    "@azure/data-tables": "^13.1.2",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",

@@ -140,10 +140,8 @@ export class DomainNameService {
     length: number,
     page: number,
     pageSize: number,
+    excludeSet: string[],
   ): Promise<string[]> {
-    const excludeDomainNames = (
-      await this.prisma2.blackDomainName.findMany()
-    ).map((item) => item.domain);
     const domainNames = await this.prisma.domainName.findMany({
       where: {
         OR: [
@@ -153,7 +151,7 @@ export class DomainNameService {
         ],
         NOT: {
           domain: {
-            in: excludeDomainNames,
+            in: excludeSet,
           },
         },
       },

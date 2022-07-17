@@ -3,6 +3,13 @@ import { DomainNameService } from './domainName.service';
 import * as fs from 'fs';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ShutdownService } from './shutdown.service';
+import { TableClient } from '@azure/data-tables';
+
+
+interface NameRecord {
+  name: string
+  owner: string
+}
 
 @Injectable()
 export class TasksService {
@@ -10,7 +17,7 @@ export class TasksService {
     private readonly domainNameService: DomainNameService,
     private logger: Logger,
     private readonly shutdownService: ShutdownService,
-  ) {}
+  ) { }
 
   @Cron(CronExpression.EVERY_HOUR)
   async handleCronJob() {
@@ -18,6 +25,8 @@ export class TasksService {
     this.logger.debug(process.env.NODE_ENV);
     await this.tryCreateFolder(process.env.JSON_FOLDER);
     const indexInfos: IndexInfo[] = [];
+
+    const registeredName = await this.getRegisterredNames();
     for (let i = 1; i < 64; i++) {
       const domainCount =
         await this.domainNameService.getDomainNamesCountByLength(i);
@@ -36,6 +45,7 @@ export class TasksService {
             i,
             j,
             pageSize,
+            registeredName,
           );
         await this.trySaveAsJsonFile(domainNames, `${i}`, `${j}`);
       }
@@ -46,6 +56,19 @@ export class TasksService {
       this.logger.debug('shutdown service');
       this.shutdownService.shutdown();
     }
+  }
+
+  async getRegisterredNames() {
+    const connectionString = process.env.REGISTERRED_NAME_CONNECTIONSTRING;
+    const tableName = process.env.REGISTERRED_NAME_TABLENAME;
+    const subffix = process.env.REGISTERRED_NAME_NAMESUBFFIX;
+    const tableClient = TableClient.fromConnectionString(connectionString, tableName);
+    let result = new Set<string>();
+    for await (const item of tableClient.listEntities<NameRecord>()) {
+      result.add(item.name.replace(subffix, ""))
+    }
+    this.logger.debug(`there is ${result.size} names registered`);
+    return Array.from(result);
   }
 
   //try create folder process.env.DATABASE_HOST
