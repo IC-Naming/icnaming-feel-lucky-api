@@ -19,7 +19,7 @@ export class TasksService {
     private readonly shutdownService: ShutdownService,
   ) { }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_DAY_AT_10AM)
   async handleCronJob() {
     this.logger.debug('job start');
     this.logger.debug(process.env.NODE_ENV);
